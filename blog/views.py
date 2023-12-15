@@ -1,3 +1,5 @@
+from datetime import timezone
+import json
 from notification.models import Notification
 from django.core.checks import messages
 from django.shortcuts import render, get_object_or_404, redirect
@@ -143,6 +145,31 @@ def LikeCommentView(request): # , id1, id2              id1=post.pk id2=reply.pk
         html = render_to_string('blog/comments.html',context, request=request)
         return JsonResponse({'form':html})
 
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    if request.method == 'POST':
+        comment.body = request.POST.get('body')
+        comment.save()
+        return redirect('post-detail', pk=comment.post.id)
+    return render(request, 'blog/edit_comment.html', {'comment': comment})
+
+@login_required
+def delete_comment(request, comment_id):
+    print(f'id: {comment_id}')
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if request.method == 'DELETE':
+        # Đọc commentId từ body của yêu cầu
+        data = json.loads(request.body)
+        comment_id = data.get('commentId')
+
+        post_id = comment.post.id
+        comment.delete()
+        return JsonResponse({'redirect': reverse('post-detail', kwargs={'pk': post_id})})
+
+    return render(request, 'blog/delete_comment.html', {'comment': comment})
 
 """ Home page with all posts """
 class PostListView(ListView):
@@ -329,3 +356,5 @@ def AllSaveView(request):
     }
     return render(request, 'blog/saved_posts.html', context)
 
+
+"""Update comment"""
