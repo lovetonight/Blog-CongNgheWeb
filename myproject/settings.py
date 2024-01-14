@@ -210,7 +210,11 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
-        }
+        },
+        "APP": {
+            "client_id": os.getenv('GOOGLE_OAUTH_CLIENT_ID'),
+            "secret": os.getenv('SECRET_KEY'),
+        },
     },
     'github': {
         'SCOPE': [
